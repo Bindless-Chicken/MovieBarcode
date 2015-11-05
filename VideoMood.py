@@ -3,39 +3,54 @@ import cv2
 import sys
 import Filter
 
+# Load video file
 if len(sys.argv) > 1:
     filename = str(sys.argv[1])
 else:
     filename = "input.mp4"
 
+# Read video file
 cap = cv2.VideoCapture(filename)
+if not cap.isOpened():
+    sys.exit("File "+filename+" not found!")
 
-count = 0
+# Retrieve various data about the video
+nb_of_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+fps = cap.get(cv2.CAP_PROP_FPS)
+image_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+image_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-frameColor = []
+# Prepare the final image
+final_image = numpy.zeros([800, nb_of_frames, 4], dtype=numpy.uint8)
 
+# Sample color image
+sample_image = numpy.zeros([200, 200, 4], dtype=numpy.uint8)
+
+# For each Frame
+i = 0
 while cap.isOpened():
     ret, frame = cap.read()
-    if not ret: break
-    cv2.imshow('window-name', frame)
-    # fil.color_quantization(frame, 4)
-    frameColor.append(Filter.hsv_dominant(frame))
 
-    # cv2.imwrite("frame%d.jpg" % count, frame)
-    count += 1
+    # If this is an empty frame aka. last one
+    if not ret:
+        break
+
+    cv2.imshow('Direct Video', frame)
+
+    # Get color
+    frame_color = cv2.mean(frame)
+    sample_image[:, :] = frame_color
+    cv2.imshow('Current Dominant Color', sample_image)
+
+    # Fill final image
+    final_image[:, i] = frame_color
+
+    # Force quit
     if cv2.waitKey(10) & 0xFF == ord('q'):
         break
 
-img = numpy.zeros([800, count, 3])
+    i += 1
 
-for i in range(0, len(frameColor)):
-    img[:, i, 0] = frameColor[i][0]
-    img[:, i, 1] = frameColor[i][1]
-    img[:, i, 2] = frameColor[i][2]
-
-r, g, b = cv2.split(img)
-img_bgr = cv2.merge([r, g, b])
-
-cv2.imwrite('color_img.jpg', img_bgr)
+cv2.imwrite('color_img.jpg', final_image)
 
 cap.release()
