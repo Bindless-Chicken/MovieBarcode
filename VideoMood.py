@@ -1,16 +1,23 @@
 import numpy
 import cv2
+import sys
 import Filter
 
-cap = cv2.VideoCapture('input.mp4')
+if len(sys.argv) > 1:
+    filename = str(sys.argv[1])
+else:
+    filename = "input.mp4"
+
+cap = cv2.VideoCapture(filename)
+
 count = 0
 
 frameColor = []
 
 while cap.isOpened():
-    ret,frame = cap.read()
+    ret, frame = cap.read()
     if not ret: break
-    cv2.imshow('window-name',frame)
+    cv2.imshow('window-name', frame)
     # fil.color_quantization(frame, 4)
     frameColor.append(Filter.hsv_dominant(frame))
 
@@ -19,7 +26,7 @@ while cap.isOpened():
     if cv2.waitKey(10) & 0xFF == ord('q'):
         break
 
-img = numpy.zeros([800,count,3])
+img = numpy.zeros([800, count, 3])
 
 for i in range(0, len(frameColor)):
     img[:, i, 0] = frameColor[i][0]
