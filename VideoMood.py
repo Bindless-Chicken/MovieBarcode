@@ -12,7 +12,7 @@ while cap.isOpened():
     if not ret: break
     cv2.imshow('window-name',frame)
     # fil.color_quantization(frame, 4)
-    frameColor.append(cv2.mean(frame))
+    frameColor.append(Filter.hsv_dominant(frame))
 
     # cv2.imwrite("frame%d.jpg" % count, frame)
     count += 1
