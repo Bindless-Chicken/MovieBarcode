@@ -7,8 +7,10 @@ import argparse
 # Create arg parser
 parser = argparse.ArgumentParser(description='Transform a video into its barcode')
 parser.add_argument('-f', '--filename', help='Video path (default: input.mp4)', default='input.mp4')
-parser.add_argument('-m', '--method', help='Method used to generate the barcode',
+parser.add_argument('-m', '--method', help='Method used to generate the barcode (default: hsv)',
                     choices=['mean', 'hsv', 'rgb', 'kmean'], default='hsv')
+parser.add_argument('-t', '--timestamp', help='Timestamp at which to start the analysing(default: 0)',
+                    default='0', type=int)
 args = parser.parse_args()
 
 # Read video file
@@ -27,6 +29,10 @@ final_image = numpy.zeros([800, nb_of_frames, 3], dtype=numpy.uint8)
 
 # Sample color image
 sample_image = numpy.zeros([200, 200, 3], dtype=numpy.uint8)
+
+# Set to the correct frame according to the timestamp
+fpms = fps/1000
+cap.set(cv2.CAP_PROP_POS_FRAMES, args.timestamp*fpms)
 
 # For each Frame
 i = 0
