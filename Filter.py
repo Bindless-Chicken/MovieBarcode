@@ -3,6 +3,18 @@ from collections import Counter
 import cv2
 
 
+# Set the link between method name and function
+def select_method(method_name):
+    if method_name == 'mean':
+        return cv2.mean
+    elif method_name == 'hsv':
+        return hsv_dominant
+    elif method_name == 'rgb':
+        return bgr_dominant
+    elif method_name == 'kmean':
+        return get_dominant_color
+
+
 def get_dominant_color(frame):
     # Get K-mean image
     color = color_quantization(frame, 4)
