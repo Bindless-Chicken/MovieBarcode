@@ -2,17 +2,17 @@ import numpy
 import cv2
 import sys
 import Filter
+import argparse
 
-# Load video file
-if len(sys.argv) > 1:
-    filename = str(sys.argv[1])
-else:
-    filename = "input.mp4"
+# Create arg parser
+parser = argparse.ArgumentParser(description='Transform a video into its barcode')
+parser.add_argument('-f', '--filename', help='Video path (default: input.mp4)', default='input.mp4')
+args = parser.parse_args()
 
 # Read video file
-cap = cv2.VideoCapture(filename)
+cap = cv2.VideoCapture(args.filename)
 if not cap.isOpened():
-    sys.exit("File "+filename+" not found!")
+    sys.exit('File '+args.filename+' not found!')
 
 # Retrieve various data about the video
 nb_of_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
