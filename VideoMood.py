@@ -4,6 +4,7 @@ import sys
 import Filter
 import EdgeDetection as ED
 import argparse
+from tqdm import tqdm
 
 # Create arg parser
 parser = argparse.ArgumentParser(description='Transform a video into its barcode')
@@ -43,8 +44,7 @@ y1, y2, x1, x2 = ED.black_border_detect(frame, image_width, image_height)
 cap.set(cv2.CAP_PROP_POS_FRAMES, args.timestamp*fpms)
 
 # For each Frame
-i = 0
-while cap.isOpened():
+for i in tqdm(range(nb_of_frames)):
     ret, frame = cap.read()
 
     # If this is an empty frame aka. last one
@@ -67,8 +67,6 @@ while cap.isOpened():
     # Force quit
     if cv2.waitKey(10) & 0xFF == ord('q'):
         break
-
-    i += 1
 
 cv2.imwrite('color_img.jpg', final_image)
 
