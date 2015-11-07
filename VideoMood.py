@@ -5,6 +5,17 @@ import Filter
 import EdgeDetection as ED
 import argparse
 from tqdm import tqdm
+from multiprocessing.pool import ThreadPool
+from collections import deque
+
+
+def process_frame(frame, i):
+     # Crop the frame
+    frame = frame[y1:y2, x1:x2]
+
+    # Get color
+    frame_color = Filter.select_method(args.method)(frame)
+    return frame_color, i
 
 # Create arg parser
 parser = argparse.ArgumentParser(description='Transform a video into its barcode')
@@ -43,26 +54,29 @@ y1, y2, x1, x2 = ED.black_border_detect(frame, image_width, image_height)
 
 cap.set(cv2.CAP_PROP_POS_FRAMES, args.timestamp*fpms)
 
+# Define thread variables
+nb_thread = cv2.getNumberOfCPUs()
+pool = ThreadPool(processes=nb_thread)
+pending_jobs = deque()
+
+
 # For each Frame
-for i in tqdm(range(nb_of_frames)):
-    ret, frame = cap.read()
+while True:
+    while len(pending_jobs) > 0 and pending_jobs[0].ready():
+        frame_color, i = pending_jobs.popleft().get()
 
-    # If this is an empty frame aka. last one
-    if not ret:
-        break
+        final_image[:, i] = frame_color
+        # print "frame" + str(i)
 
-    # Crop the frame
-    frame = frame[y1:y2, x1:x2]
+    if len(pending_jobs) < nb_thread:
+        ret, frame = cap.read()
 
-    cv2.imshow('Direct Video', frame)
+        # If this is an empty frame aka. last one
+        if not ret:
+            break
 
-    # Get color
-    frame_color = Filter.select_method(args.method)(frame)
-    sample_image[:, :] = frame_color
-    cv2.imshow('Current Dominant Color', sample_image)
-
-    # Fill final image
-    final_image[:, i] = frame_color
+        task = pool.apply_async(process_frame, (frame.copy(), cap.get(cv2.CAP_PROP_POS_FRAMES)))
+        pending_jobs.append(task)
 
     # Force quit
     if cv2.waitKey(10) & 0xFF == ord('q'):
