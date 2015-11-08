@@ -32,15 +32,11 @@ final_image = numpy.zeros([800, nb_of_frames, 3], dtype=numpy.uint8)
 # Sample color image
 sample_image = numpy.zeros([200, 200, 3], dtype=numpy.uint8)
 
+# Edge Detection
+x1, y1, x2, y2 = ED.detect_black_edges(cap)
+
 # Set to the correct frame according to the timestamp
 fpms = fps/1000
-cap.set(cv2.CAP_PROP_POS_FRAMES, 400)
-
-
-# Edge Detection
-ret, frame = cap.read()
-y1, y2, x1, x2 = ED.black_border_detect(frame, image_width, image_height)
-
 cap.set(cv2.CAP_PROP_POS_FRAMES, args.timestamp*fpms)
 
 # For each Frame
