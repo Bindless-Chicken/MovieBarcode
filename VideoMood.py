@@ -62,7 +62,7 @@ for i in tqdm(range(final_width)):
     cv2.imshow('Direct Video', frame)
 
     # Get color
-    frame_color = Filter.select_method(args.method)(frame)
+    frame_color = Filter.select_method(args.method)(frame)[:3]
     sample_image[:, :] = frame_color
     cv2.imshow('Current Dominant Color', sample_image)
 
