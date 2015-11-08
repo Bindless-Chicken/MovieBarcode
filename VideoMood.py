@@ -13,6 +13,8 @@ parser.add_argument('-m', '--method', help='Method used to generate the barcode 
                     choices=['mean', 'hsv', 'rgb', 'kmean'], default='hsv')
 parser.add_argument('-t', '--timestamp', help='Timestamp at which to start the analysing(default: 0)',
                     default='0', type=int)
+parser.add_argument('-w', '--width', help='Desired final image width(default: full movie)',
+                    default='0', type=int)
 args = parser.parse_args()
 
 # Read video file
@@ -25,9 +27,10 @@ nb_of_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 fps = cap.get(cv2.CAP_PROP_FPS)
 image_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
 image_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+final_width = args.width if args.width != 0 else nb_of_frames
 
 # Prepare the final image
-final_image = numpy.zeros([800, nb_of_frames, 3], dtype=numpy.uint8)
+final_image = numpy.zeros([800, final_width, 3], dtype=numpy.uint8)
 
 # Sample color image
 sample_image = numpy.zeros([200, 200, 3], dtype=numpy.uint8)
@@ -39,8 +42,14 @@ x1, y1, x2, y2 = ED.detect_black_edges(cap)
 fpms = fps/1000
 cap.set(cv2.CAP_PROP_POS_FRAMES, args.timestamp*fpms)
 
+# Determine time warp
+warp = (nb_of_frames-(args.timestamp*fpms))/final_width
+print "Taking one frame every " + str(warp)
+
 # For each Frame
-for i in tqdm(range(nb_of_frames)):
+for i in tqdm(range(final_width)):
+    # Let's warp
+    cap.set(cv2.CAP_PROP_POS_FRAMES, i*warp)
     ret, frame = cap.read()
 
     # If this is an empty frame aka. last one
