@@ -49,7 +49,7 @@ print "Taking one frame every " + str(warp)
 # For each Frame
 for i in tqdm(range(final_width)):
     # Let's warp
-    cap.set(cv2.CAP_PROP_POS_FRAMES, i*warp)
+    cap.set(cv2.CAP_PROP_POS_FRAMES, (i+args.timestamp)*warp)
     ret, frame = cap.read()
 
     # If this is an empty frame aka. last one
