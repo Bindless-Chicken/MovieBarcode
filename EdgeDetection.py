@@ -19,10 +19,10 @@ def detect_black_edges(cap):
 
         border_pos[i] = (black_border_detect(frame, image_width, image_height))
 
-    return [np.mean(border_pos[:, 0], dtype=int),
-            np.mean(border_pos[:, 1], dtype=int),
-            np.mean(border_pos[:, 2], dtype=int),
-            np.mean(border_pos[:, 3], dtype=int)]
+    return [np.sort(border_pos[:, 0])[2],
+            np.sort(border_pos[:, 1])[2],
+            np.sort(border_pos[:, 2])[2],
+            np.sort(border_pos[:, 3])[2]]
 
 
 def black_border_detect(frame, width, height):
